@@ -5,12 +5,12 @@ all:
       hosts:
         ct1:
           ansible_host: 192.168.1.111
-          ansible_user: root
+          ansible_user: root # à changer en utilisant un autre user que root, et en se servant des 'become: true' !!!
           ansible_ssh_private_key_file: /home/maggio/.ssh/checkpointtodelete
 
 #        ct2wcs:
 #          ansible_host: # IPV6 qui ne marche pas depuis ma machine locale !!!
-#          ansible_user: root
+#          ansible_user: root # à changer en utilisant un autre user que root, et en se servant des 'become: true' !!!
 #          ansible_ssh_private_key_file: /home/maggio/.ssh/checkpointtodeleteremoteservwcs
 
   vars:
