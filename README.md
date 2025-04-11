@@ -95,12 +95,14 @@ https://checkpoint2.casamaggio.fr
 The certificate should be valid, and the site should be served over HTTPS.
 
 # Notes (for me :D)
-**Cloudflare**: If you're using Cloudflare as a proxy, ensure that the proxy is turned off for the domain during the SSL certificate issuance process. You can temporarily disable the Cloudflare proxy or use DNS verification.
-**Firewall**: Ensure that the necessary ports (80 and 443) are open on the server's firewall and accessible from the internet.
-**Custom Domain**: Ensure that your domain's DNS settings are configured correctly to point to your server’s public IP address in both your DNS provider and Cloudflare settings.
+- **Cloudflare**: If you're using Cloudflare as a proxy, ensure that the proxy is turned off for the domain during the SSL certificate issuance process. You can temporarily disable the Cloudflare proxy or use DNS verification.  
+- **Firewall**: Ensure that the necessary ports (80 and 443) are open on the server's firewall and accessible from the internet.  
+- **Custom Domain**: Ensure that your domain's DNS settings are configured correctly to point to your server’s public IP address in both your DNS provider and Cloudflare settings.  
 
 
 # Pourquoi j'ai fait autrement
-L'énoncé demandait de créer un sous-domaine via DynV6, de lier l'IPv6 de mon conteneur et de configurer un certificat TLS avec Let's Encrypt pour rendre mon WordPress accessible. Le problème, c'est que ma box ne gère pas l'IPv6, donc je ne pouvais pas suivre cette méthode telle qu'indiquée.  
-Du coup, j'ai décidé de passer par une solution alternative avec AWS et Cloudflare. J'ai utilisé Cloudflare pour gérer le DNS et rediriger tout le trafic vers l'adresse IPv4 publique de ma box. Puis, j'ai sécurisé le tout avec un certificat TLS via Let's Encrypt, pour respecter les critères de sécurité.
-J'aurais pu faire tout ça en utilisant un contrôleur Ansible sur le serveur de la Wild, mais j'ai préféré configurer tout ça localement. Ça m'a permis de contourner les soucis liés à l'IPv6 et, en même temps, de bosser sur un projet perso que je voulais développer en parallèle. En gros, une solution un peu plus flexible pour gérer l'accès à mon application WordPress.
+L'énoncé demandait de créer un sous-domaine via DynV6, de lier l'IPv6 de mon conteneur et de configurer un certificat TLS avec Let's Encrypt pour rendre mon WordPress accessible.  
+Le problème, c'est que ma box ne gère pas l'IPv6, donc je ne pouvais pas suivre cette méthode telle qu'indiquée.   
+Du coup, j'ai décidé de passer par une solution alternative avec AWS et Cloudflare. J'ai utilisé Cloudflare pour gérer le DNS et rediriger tout le trafic vers l'adresse IPv4 publique de ma box. Puis, j'ai sécurisé le tout avec un certificat TLS via Let's Encrypt, pour respecter les critères de sécurité. Tout ça derrière le domaine enregistré premièrement chez AWS Route53.  
+J'aurais pu faire tout ça en utilisant un contrôleur Ansible sur le serveur de la Wild, mais j'ai préféré configurer tout ça localement. Ça m'a permis de contourner les soucis liés à l'IPv6 et, en même temps, de bosser sur un projet perso que je voulais développer en parallèle.  
+En gros, une solution un peu plus "perso" pour gérer l'accès à l'application WordPress.
