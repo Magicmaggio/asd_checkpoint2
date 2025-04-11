@@ -1,0 +1,19 @@
+---
+all:
+  children:
+    conteneurs_wep_app:
+      hosts:
+        ct1:
+          ansible_host: 192.168.1.111
+          ansible_user: root
+          ansible_ssh_private_key_file: /home/maggio/.ssh/checkpointtodelete
+
+#        ct2wcs:
+#          ansible_host: # IPV6 qui ne marche pas depuis ma machine locale !!!
+#          ansible_user: root
+#          ansible_ssh_private_key_file: /home/maggio/.ssh/checkpointtodeleteremoteservwcs
+
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    web_domain: checkpoint2.casamaggio.fr
+    email_address: nico.maggiori@mailo.com

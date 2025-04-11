@@ -1,1 +1,41 @@
 ---
+- name: Copier l'archive de WordPress sur la machine distante
+  ansible.builtin.copy:
+    src: "files/wordpress-6.4.3-fr_FR.tar.gz"
+    dest: "/tmp/wordpress-6.4.3-fr_FR.tar.gz"
+
+- name: Extraire l'archive de WordPress
+  ansible.builtin.unarchive:
+    src: "/tmp/wordpress-6.4.3-fr_FR.tar.gz"
+    dest: /var/www/
+    remote_src: yes
+    creates: /var/www/wordpress
+
+- name: Donner les bonnes permissions aux fichiers WordPress
+  ansible.builtin.file:
+    path: "/var/www/wordpress"
+    owner: www-data
+    group: www-data
+    recurse: yes
+
+- name: Copier le fichier de configuration Apache pour WordPress (config VirtualHost)
+  ansible.builtin.template:
+    src: wordpress.conf.j2
+    dest: /etc/apache2/sites-available/wordpress.conf
+  become: true
+  notify:
+    - Redémarrer Apache2
+
+- name: Désactiver le site par défaut
+  ansible.builtin.shell: a2dissite 000-default.conf
+  become: true
+  notify:
+    - Redémarrer Apache2
+
+- name: Activer le site WordPress et recharger Apache
+  ansible.builtin.shell: |
+    a2ensite wordpress.conf
+    systemctl reload apache2
+  become: true
+  notify:
+    - Redémarrer Apache2

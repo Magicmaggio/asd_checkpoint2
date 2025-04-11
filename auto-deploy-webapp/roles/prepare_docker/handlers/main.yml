@@ -1,1 +1,7 @@
 ---
+# Pareil, pour redémarrer Docker si nécessaire
+- name: Restart Docker service
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+

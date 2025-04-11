@@ -1,1 +1,85 @@
 ---
+- name: Vérifier si Docker est installé
+  ansible.builtin.command: which docker
+  register: docker_check
+  changed_when: false
+  failed_when: docker_check.rc != 0
+
+- name: Vérifier si le service Docker est actif
+  ansible.builtin.service:
+    name: docker
+    state: started
+  become: true
+  failed_when: "'false' == true"
+  changed_when: false
+
+- name: Vérifier si Docker est accessible
+  ansible.builtin.command: docker info
+  register: docker_info
+  failed_when: docker_info.rc != 0
+  changed_when: false
+  become: true
+
+- name: Installer pip3
+  ansible.builtin.apt:
+    name: python3-pip
+    state: present
+    update_cache: true
+  become: true
+
+- name: Installer les modules Python Docker + requests
+  ansible.builtin.pip:
+    name:
+      - requests
+      - docker
+    state: present
+    executable: pip3
+  become: true
+
+- name: Télécharger l'image de MariaDB (version spécifique) avec docker pull
+  ansible.builtin.command:
+    cmd: docker pull mariadb:11.2.2
+  become: true
+
+- name: Vérifier si l'image a bien été téléchargée
+  ansible.builtin.command:
+    cmd: docker images mariadb:11.2.2
+  register: result
+  changed_when: false
+  failed_when: result.rc != 0
+
+- name: Vérifier si le conteneur MariaDB existe déjà
+  ansible.builtin.command:
+    cmd: docker ps -a --filter "name=mariadb_server"
+  register: container_check
+  changed_when: false
+  failed_when: "'false' == true"
+
+# Si un conteneur existe, on le stoppe et le supprime
+- name: Arrêter et supprimer le conteneur existant
+  ansible.builtin.command:
+    cmd: docker rm -f mariadb_server
+  when: container_check.stdout != ""
+  register: remove_result
+  changed_when: true
+
+# Télécharger l'image MariaDB (si ce n'est pas déjà fait)
+- name: Télécharger l'image MariaDB (version 11.2.2)
+  ansible.builtin.command:
+    cmd: docker pull mariadb:11.2.2
+  when: container_check.stdout == ""
+  register: pull_result
+  changed_when: true
+
+# Créer et démarrer le conteneur MariaDB
+- name: Créer et démarrer le conteneur MariaDB
+  ansible.builtin.command:
+    cmd: docker run -d --name mariadb_server -e MYSQL_ROOT_PASSWORD={{ mariadb_root_password }} -e MYSQL_DATABASE={{ mariadb_database }} -e MYSQL_USER={{ mariadb_user }} -e MYSQL_PASSWORD={{ mariadb_password }} -p 3306:3306 mariadb:11.2.2
+  when: container_check.stdout == "" or remove_result.changed == true
+  register: start_result
+
+# Afficher un message si le conteneur est déjà en cours d'exécution
+- name: Afficher un message si le conteneur est déjà actif
+  debug:
+    msg: "Le conteneur MariaDB est déjà en cours d'exécution ou a été redémarré."
+  when: container_check.stdout != "" and start_result.changed == false

@@ -1,1 +1,7 @@
 ---
+# Pour redémarrer Apache2 si nécessaire...
+- name: Redémarrer Apache2
+  ansible.builtin.service:
+    name: apache2
+    state: restarted
+

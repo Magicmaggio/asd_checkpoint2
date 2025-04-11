@@ -1,1 +1,33 @@
 ---
+- name: Installer gnupg pour gérer les clés de dépôt
+  ansible.builtin.apt:
+    name: gnupg
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Ajouter la clé GPG pour le dépôt PHP
+  ansible.builtin.apt_key:
+    url: https://packages.sury.org/php/apt.gpg
+    state: present
+  become: true
+
+- name: Ajouter le dépôt pour PHP 8.2
+  ansible.builtin.apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+
+- name: Installer PHP et les modules nécessaires
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: "{{ php_packages }}"
+
+- name: Assurer que PHP-FPM est actif
+  ansible.builtin.service:
+    name: php{{ php_version }}-fpm
+    state: started
+    enabled: yes
+
+

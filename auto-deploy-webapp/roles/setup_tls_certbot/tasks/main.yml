@@ -1,0 +1,41 @@
+---
+- name: Installer Certbot et le plugin Apache
+  ansible.builtin.apt:
+    name:
+      - certbot
+      - python3-certbot-apache
+      - python3-requests
+      - python3-urllib3
+    state: present
+    update_cache: yes
+
+- name: Vérifier la version de Certbot
+  ansible.builtin.command: certbot --version
+  register: certbot_version
+  failed_when: false
+  changed_when: false
+
+- name: Afficher la version de Certbot
+  ansible.builtin.debug:
+    msg: "Version de Certbot installée : {{ certbot_version.stdout }}"
+
+- name: Mettre à jour requests_toolbelt et urllib3
+  ansible.builtin.pip:
+    name:
+      - requests_toolbelt
+      - urllib3
+    state: latest
+
+- name: Générer un certificat TLS via Certbot
+  ansible.builtin.command: >
+    certbot --noninteractive --agree-tos --apache
+    -d {{ web_domain }}
+    --email {{ email_address }}
+  args:
+    creates: "/etc/letsencrypt/live/{{ web_domain }}/fullchain.pem"
+  notify: Redémarrer Apache2
+
+- name: Vérifier si le certificat a été créé avec succès
+  ansible.builtin.stat:
+    path: "/etc/letsencrypt/live/{{ web_domain }}/fullchain.pem"
+  register: cert_status

@@ -1,1 +1,8 @@
 ---
+# Configuration pour MariaDB
+mariadb_version: "11.2.2"  # Version de MariaDB souhaitée
+mariadb_root_password: "db_root_password"
+mariadb_database: "mydatabase"
+mariadb_user: "dbuser"
+mariadb_password: "dbpassword"
+#mariadb_host: "localhost"
