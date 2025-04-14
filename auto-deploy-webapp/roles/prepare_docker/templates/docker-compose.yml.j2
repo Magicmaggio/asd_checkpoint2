@@ -1,7 +1,10 @@
 version: '3'
+
 volumes:
   db-data:
+
 services:
+  # Service pour la base de données MariaDB
   db:
     image: mariadb
     environment:
@@ -13,3 +16,29 @@ services:
       - db-data:/var/lib/mysql
     ports:
       - "3306:3306"
+    networks:
+      - default
+
+  # Service pour WordPress
+  wordpress:
+    image: wordpress:latest
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: {{ db_name }}
+      WORDPRESS_DB_USER: user
+      WORDPRESS_DB_PASSWORD: {{ db_password }}
+    volumes:
+      - wp-data:/var/www/html
+    labels:
+      # Labels Traefik pour définir le routage et SSL
+      - "traefik.enable=true"
+      - "traefik.http.routers.wordpress.rule=Host(`checkpoint2.casamaggio.fr`)"
+      - "traefik.http.routers.wordpress.entrypoints=websecure"
+      - "traefik.http.routers.wordpress.tls.certresolver=myresolver"
+      - "traefik.http.routers.wordpress.middlewares=https-redirect"
+    networks:
+      - default  # Utilisation du réseau par défaut de Docker
+
+networks:
+  default:
+    driver: bridge  # Le réseau par défaut de Docker
